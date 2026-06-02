@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: pge-mock-services
+
+# Spring Boot embedded server (Actuator management endpoints only)
+server:
+  port: 7081
+
+# Camel Undertow REST API
+rest:
+  host: 0.0.0.0
+  port: 7080
+
+external-services:
+  rcdc-response:
+    url: http://localhost:9080/api/v1/rcdc/response
+
+camel:
+  springboot:
+    name: PGEMockServicesContext
+    stream-caching-enabled: true
+  main:
+    auto-startup: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,camelroutes
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.pge.mockservices: DEBUG
+    org.apache.camel: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
