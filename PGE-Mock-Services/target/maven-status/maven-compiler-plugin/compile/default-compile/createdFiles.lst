@@ -1,0 +1,16 @@
+com\pge\mockservices\models\rcdc\request\RequestPayload.class
+com\pge\mockservices\models\rcdc\DefaultResponse.class
+com\pge\mockservices\models\rcdc\Header.class
+com\pge\mockservices\models\rcdc\EndDeviceAsset.class
+com\pge\mockservices\models\rcdc\request\RequestHeader.class
+com\pge\mockservices\mappers\RCDCRequestMapper.class
+com\pge\mockservices\models\rcdc\request\RcdSwitchState.class
+com\pge\mockservices\models\rcdc\Reply.class
+com\pge\mockservices\routes\RestApiConfig.class
+com\pge\mockservices\routes\RCDCSoapRoute.class
+com\pge\mockservices\models\rcdc\request\RCDCRequest.class
+com\pge\mockservices\routes\RCDCRequestRoute.class
+com\pge\mockservices\models\rcdc\RCDCRequestResponse.class
+com\pge\mockservices\MockServicesApplication.class
+com\pge\mockservices\models\rcdc\Payload.class
+com\pge\mockservices\models\rcdc\request\RequestEndDeviceAsset.class
