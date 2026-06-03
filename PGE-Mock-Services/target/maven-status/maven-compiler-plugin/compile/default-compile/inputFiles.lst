@@ -10,6 +10,7 @@ D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\mappers\RCDCReq
 D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\models\rcdc\request\RequestHeader.java
 D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\models\rcdc\Payload.java
 D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\models\rcdc\EndDeviceAsset.java
+D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\routes\OnDemandReadSoapRoute.java
 D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\models\rcdc\request\RcdSwitchState.java
 D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\routes\RCDCSoapRoute.java
 D:\PGE DEMO\PGE-Mock-Services\src\main\java\com\pge\mockservices\MockServicesApplication.java

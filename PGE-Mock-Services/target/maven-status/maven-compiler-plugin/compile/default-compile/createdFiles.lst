@@ -6,6 +6,7 @@ com\pge\mockservices\models\rcdc\EndDeviceAsset.class
 com\pge\mockservices\models\rcdc\request\RequestHeader.class
 com\pge\mockservices\mappers\RCDCRequestMapper.class
 com\pge\mockservices\models\rcdc\request\RcdSwitchState.class
+com\pge\mockservices\routes\OnDemandReadSoapRoute.class
 com\pge\mockservices\models\rcdc\Reply.class
 com\pge\mockservices\routes\RestApiConfig.class
 com\pge\mockservices\routes\RCDCSoapRoute.class
