@@ -67,23 +67,28 @@ public class RCDCSoapRoute extends RouteBuilder {
     private String buildAcknowledgement(String correlationId, String mrid) {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
-                <ResponseMessage xmlns="http://www.iec.ch/TC57/2008/schema/message">
-                  <Header>
-                    <Verb>Reply</Verb>
-                    <Noun>RCDSwitchState</Noun>
-                    <Timestamp>%s</Timestamp>
-                    <CorrelationID>%s</CorrelationID>
-                  </Header>
-                  <Reply>
-                    <ReplyCode>0</ReplyCode>
-                    <Result>SUCCESS</Result>
-                  </Reply>
-                  <Payload>
-                    <EndDeviceAsset>
-                      <mRID>%s</mRID>
-                    </EndDeviceAsset>
-                  </Payload>
-                </ResponseMessage>
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header/>
+                  <soapenv:Body>
+                    <ResponseMessage xmlns="http://www.iec.ch/TC57/2008/schema/message">
+                      <Header>
+                        <Verb>Reply</Verb>
+                        <Noun>RCDSwitchState</Noun>
+                        <Timestamp>%s</Timestamp>
+                        <CorrelationID>%s</CorrelationID>
+                      </Header>
+                      <Reply>
+                        <ReplyCode>0</ReplyCode>
+                        <Result>SUCCESS</Result>
+                      </Reply>
+                      <Payload>
+                        <EndDeviceAsset>
+                          <mRID>%s</mRID>
+                        </EndDeviceAsset>
+                      </Payload>
+                    </ResponseMessage>
+                  </soapenv:Body>
+                </soapenv:Envelope>
                 """.formatted(Instant.now().toString(), correlationId, mrid);
     }
 }

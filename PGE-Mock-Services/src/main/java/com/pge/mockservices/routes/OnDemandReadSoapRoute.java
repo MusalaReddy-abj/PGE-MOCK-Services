@@ -60,7 +60,10 @@ public class OnDemandReadSoapRoute extends RouteBuilder {
     private String buildResponse(String correlationId, String mrid) {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
-                <CM-GetMeterReadingsResp xmlns="http://ouaf.oracle.com/webservices/cm/CM-GetMeterReadingsResp"\
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header/>
+                  <soapenv:Body>
+                    <CM-GetMeterReadingsResp xmlns="http://ouaf.oracle.com/webservices/cm/CM-GetMeterReadingsResp"\
                  xmlns:jca="http://xmlns.oracle.com/pcbpel/wsdl/jca/"\
                  xmlns:ns2="http://iec.ch/TC57/2009/MeterReadings#"\
                  xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/jms/Trilliant-DEV/OnDemandReadCallback/jmsService"\
@@ -350,7 +353,9 @@ public class OnDemandReadSoapRoute extends RouteBuilder {
                       <tns:replyCode>0.0</tns:replyCode>
                     </tns:reply>
                   </tns:responseDetail>
-                </CM-GetMeterReadingsResp>
+                    </CM-GetMeterReadingsResp>
+                  </soapenv:Body>
+                </soapenv:Envelope>
                 """.formatted(correlationId, mrid);
     }
 }
