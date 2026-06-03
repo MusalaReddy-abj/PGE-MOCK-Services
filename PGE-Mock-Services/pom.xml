@@ -70,6 +70,25 @@
             <artifactId>camel-jackson-starter</artifactId>
         </dependency>
 
+        <!-- JWT (HS256 bearer token for Kong) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Camel HTTP (outbound REST calls) -->
         <dependency>
             <groupId>org.apache.camel.springboot</groupId>

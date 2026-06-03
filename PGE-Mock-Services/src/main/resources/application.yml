@@ -11,6 +11,11 @@ rest:
   host: 0.0.0.0
   port: 7080
 
+jwt:
+  secret-key: Kraken@2026!ExternalConsumer#JWT_Kong$Secure92xLpZ
+  issuer: jwt-issuer
+  expiration: 2910000000
+
 external-services:
   rcdc-response:
     url: http://localhost:9080/api/v1/rcdc/response

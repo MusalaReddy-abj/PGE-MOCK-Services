@@ -3,6 +3,8 @@ package com.pge.mockservices.routes;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -18,6 +20,8 @@ import java.time.Instant;
 @Component
 public class RCDCSoapRoute extends RouteBuilder {
 
+    private static final Logger log = LoggerFactory.getLogger(RCDCSoapRoute.class);
+
     @Override
     public void configure() {
         rest()
@@ -30,18 +34,31 @@ public class RCDCSoapRoute extends RouteBuilder {
 
         from("direct:process-rcdc-soap")
             .routeId("route-mock-rcdc-soap")
-            // Ensure the body is a String before XPath extraction
             .convertBodyTo(String.class)
-            // Extract fields from the incoming XML using namespace-agnostic XPath
+            .process(exchange -> log.info("[RCDC-SOAP] Received XML request | contentLength={}",
+                    exchange.getMessage().getBody(String.class).length()))
+
+            // Extract fields using namespace-agnostic XPath
             .setProperty("correlationId",
                 xpath("//*[local-name()='CorrelationID']/text()", String.class))
             .setProperty("mrid",
                 xpath("//*[local-name()='mRID']/text()", String.class))
+            .setProperty("state",
+                xpath("//*[local-name()='state']/text()", String.class))
+
             .process(exchange -> {
                 String correlationId = exchange.getProperty("correlationId", String.class);
                 String mrid          = exchange.getProperty("mrid", String.class);
+                String state         = exchange.getProperty("state", String.class);
 
-                exchange.getMessage().setBody(buildAcknowledgement(correlationId, mrid));
+                log.info("[RCDC-SOAP] Parsed request | correlationId={} mrid={} state={}",
+                        correlationId, mrid, state);
+
+                String ack = buildAcknowledgement(correlationId, mrid);
+
+                log.info("[RCDC-SOAP] Sending SUCCESS acknowledgement | correlationId={}", correlationId);
+
+                exchange.getMessage().setBody(ack);
                 exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "text/xml; charset=UTF-8");
                 exchange.getMessage().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
             });

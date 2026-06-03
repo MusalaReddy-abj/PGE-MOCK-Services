@@ -1,4 +1,5 @@
 com\pge\mockservices\models\rcdc\request\RequestPayload.class
+com\pge\mockservices\security\JwtTokenProvider.class
 com\pge\mockservices\models\rcdc\DefaultResponse.class
 com\pge\mockservices\models\rcdc\Header.class
 com\pge\mockservices\models\rcdc\EndDeviceAsset.class
