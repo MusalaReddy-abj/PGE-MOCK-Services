@@ -31,7 +31,7 @@ public class RCDCRequestMapper {
 
         return new RCDCRequestResponse(
                 new Header("Reply", "RCDSwitchState", timestamp, correlationId),
-                new Reply("0"),
+                new Reply("0.0"),
                 new Payload(new DefaultResponse(new EndDeviceAsset(mrid)))
         );
     }
