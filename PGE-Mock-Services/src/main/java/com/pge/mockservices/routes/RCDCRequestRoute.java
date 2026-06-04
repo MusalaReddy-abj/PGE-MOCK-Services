@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 public class RCDCRequestRoute extends RouteBuilder {
 
@@ -31,35 +33,36 @@ public class RCDCRequestRoute extends RouteBuilder {
     public void configure() {
         rest()
             .post("/rcdcrequest")
-            .description("Mock RCDC Request — maps payload, calls RCDC response service, returns mapped reply")
+            .description("Mock RCDC Request — maps payload, calls RCDC response service, returns CM-ChangeRCDSwitchStateResp XML")
             .consumes("application/json")
-            .produces("application/json")
+            .produces("text/xml")
             .type(RCDCRequest.class)
             .to("direct:process-rcdc-request");
 
         from("direct:process-rcdc-request")
             .routeId("route-mock-rcdc-request")
 
-            // Step 1: Map incoming request → response
+            // Step 1: Extract fields, build JSON payload for external service call
             .process(exchange -> {
                 RCDCRequest request = exchange.getMessage().getBody(RCDCRequest.class);
-                String correlationId = request.getHeader() != null ? request.getHeader().getCorrelationID() : "N/A";
+                String correlationId = request.getHeader() != null ? request.getHeader().getCorrelationID() : "";
                 String mrid = request.getPayload() != null
                         && request.getPayload().getRcdSwitchState() != null
                         && request.getPayload().getRcdSwitchState().getEndDeviceAsset() != null
-                        ? request.getPayload().getRcdSwitchState().getEndDeviceAsset().getMrid() : "N/A";
+                        ? request.getPayload().getRcdSwitchState().getEndDeviceAsset().getMrid() : "";
 
                 log.info("[RCDC-REQUEST] Received | correlationId={} mrid={} state={}",
                         correlationId, mrid,
                         request.getPayload() != null && request.getPayload().getRcdSwitchState() != null
                                 ? request.getPayload().getRcdSwitchState().getState() : "N/A");
 
-                RCDCRequestResponse response = mapper.toResponse(request);
-                exchange.setProperty("rcdc.mappedResponse", response);
-                exchange.getMessage().setBody(response);
+                exchange.setProperty("rcdc.correlationId", correlationId);
+
+                RCDCRequestResponse outboundPayload = mapper.toResponse(request);
+                exchange.getMessage().setBody(outboundPayload);
             })
 
-            // Step 2: Forward mapped payload to external service via Kong (JWT auth)
+            // Step 2: Forward mapped JSON payload to external service via Kong (JWT auth)
             .marshal().json()
             .removeHeaders("CamelHttp*")
             .process(exchange -> {
@@ -82,13 +85,48 @@ public class RCDCRequestRoute extends RouteBuilder {
                 })
             .end()
 
-            // Step 3: Always return the pre-mapped response (ReplyCode always 0)
+            // Step 3: Always return CM-ChangeRCDSwitchStateResp XML (replyCode always 0.0)
             .process(exchange -> {
-                RCDCRequestResponse response = exchange.getProperty("rcdc.mappedResponse", RCDCRequestResponse.class);
-                log.info("[RCDC-REQUEST] Returning mock response | correlationId={} replyCode={}",
-                        response.getHeader().getCorrelationId(),
-                        response.getReply().getReplyCode());
-                exchange.getMessage().setBody(response);
+                String correlationId = exchange.getProperty("rcdc.correlationId", String.class);
+                String xml = buildXmlResponse(correlationId);
+
+                log.info("[RCDC-REQUEST] Returning XML response | correlationId={} replyCode=0.0", correlationId);
+
+                exchange.getMessage().setBody(xml);
+                exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, "text/xml; charset=UTF-8");
             });
+    }
+
+    private String buildXmlResponse(String correlationId) {
+        return """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+                  <soapenv:Header/>
+                  <soapenv:Body>
+                    <CM-ChangeRCDSwitchStateResp\
+                 xmlns="http://ouaf.oracle.com/webservices/cm/CM-ChangeRCDSwitchStateResp"\
+                 xmlns:jca="http://xmlns.oracle.com/pcbpel/wsdl/jca/"\
+                 xmlns:ns2="http://iec.ch/TC57/2009/EndDeviceAssets#"\
+                 xmlns:ns1="http://xmlns.oracle.com/pcbpel/adapter/jms/TrilliantSOAApplication/TrilliantRCDCAsyncRespFromHESToMDM/ConsumeResponseFromTrilliant"\
+                 xmlns:ns4="http://www.trilliantinc.com/SEAL/1.0/BasicTypes"\
+                 xmlns:ns3="http://www.trilliantinc.com/SEAL/1.0/dt025pvvnl"\
+                 xmlns:tns="http://ouaf.oracle.com/webservices/cm/CM-ChangeRCDSwitchStateResp">
+                      <tns:transactionId>%s</tns:transactionId>
+                      <tns:responseDetail>
+                        <tns:header>
+                          <tns:verb>REPLY</tns:verb>
+                          <tns:noun>DefaultResponse</tns:noun>
+                          <tns:correlationID>%s</tns:correlationID>
+                          <tns:timeStamp>%s</tns:timeStamp>
+                        </tns:header>
+                        <tns:reply>
+                          <tns:replyCode>0.0</tns:replyCode>
+                        </tns:reply>
+                        <tns:payLoad/>
+                      </tns:responseDetail>
+                    </CM-ChangeRCDSwitchStateResp>
+                  </soapenv:Body>
+                </soapenv:Envelope>
+                """.formatted(correlationId, correlationId, Instant.now().toString());
     }
 }
